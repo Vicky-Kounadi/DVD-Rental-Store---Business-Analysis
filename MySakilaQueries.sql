@@ -48,3 +48,35 @@ GROUP BY c.customer_id, c.first_name, c.last_name
 ORDER BY total_revenue DESC
 LIMIT 10;
 
+
+-- Customers based on revenue + rentals
+WITH 
+top_rental AS(
+	SELECT c.customer_id, COUNT(r.rental_id) AS rental_count
+	FROM rental r
+	JOIN customer c ON r.customer_id = c.customer_id
+	GROUP BY c.customer_id
+),
+top_revenue AS(
+	SELECT c.customer_id,SUM(p.amount) as total_revenue
+	FROM payment p
+	JOIN customer c ON c.customer_id = p.customer_id
+	GROUP BY c.customer_id
+)
+
+SELECT trent.customer_id, CONCAT(c.first_name, ' ', c.last_name) AS customer_name, 
+		trent.rental_count AS rental_count, 
+        ROUND(trev.total_revenue, 2) AS total_revenue,
+		CASE 
+		  WHEN rental_count >= 30 OR total_revenue >= 150
+		  THEN 'High Value'
+		  WHEN (rental_count >= 20 AND rental_count < 30) OR (total_revenue >= 80 AND total_revenue < 150)
+		  THEN 'Medium Value'
+		  ELSE 'Low Value'
+		END AS value_tier
+FROM top_rental trent
+JOIN top_revenue trev ON trev.customer_id = trent.customer_id
+JOIN customer c ON c.customer_id = trent.customer_id
+ORDER BY trent.rental_count DESC, trev.total_revenue DESC;
+
+
