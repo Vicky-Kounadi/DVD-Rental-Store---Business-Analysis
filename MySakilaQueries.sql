@@ -233,6 +233,8 @@ SELECT DAYNAME(r.rental_date) AS day_name,
 FROM rental r
 JOIN payment p ON r.rental_id=p.rental_id
 GROUP BY day_name
-ORDER BY rentals_per_day DESC;
+-- ORDER BY rentals_per_day DESC;
+ORDER BY FIELD(day_name, 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday');
+
 
 
