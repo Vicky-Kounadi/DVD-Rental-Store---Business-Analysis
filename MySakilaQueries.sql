@@ -80,3 +80,45 @@ JOIN customer c ON c.customer_id = trent.customer_id
 ORDER BY trent.rental_count DESC, trev.total_revenue DESC;
 
 
+-- LATE RETURNS
+WITH lateness AS (
+	SELECT r.rental_id, r.customer_id, r.rental_date, r.return_date, f.film_id, f.rental_duration, 
+			DATE_ADD(r.rental_date, INTERVAL f.rental_duration DAY) AS exp_return_date
+	FROM rental r
+	JOIN inventory i ON  r.inventory_id = i.inventory_id
+	JOIN film f ON i.film_id = f.film_id
+	),
+total_late AS(
+	SELECT *,  
+			CASE 
+			  WHEN l.return_date IS NULL
+			  THEN 'Not Returned'
+			  WHEN l.return_date > l.exp_return_date
+			  THEN 'Late'
+			  WHEN l.return_date <= l.exp_return_date
+			  THEN 'On Time'
+			  ELSE 'Not Returned'
+			END AS return_status,
+			CASE 
+			  WHEN l.return_date > l.exp_return_date
+			  THEN DATEDIFF(l.return_date, l.exp_return_date)
+			  ELSE 0
+			END AS late_days,
+			CASE 
+			  WHEN l.return_date > l.exp_return_date
+			  THEN DATEDIFF(l.return_date, l.exp_return_date) * 0.50 -- cant use the as late_days yet
+			  ELSE 0
+			END AS late_fee
+	FROM lateness l
+    )
+SELECT tl.customer_id, c.first_name, c.last_name,
+	COUNT(tl.rental_id) AS total_rentals, 
+	SUM(CASE WHEN late_days > 0 THEN 1 ELSE 0 END) AS late_instances,
+    SUM(late_fee) AS total_late_fee,
+    ROUND (SUM(CASE WHEN late_days > 0 THEN 1 ELSE 0 END)/COUNT(tl.rental_id), 2) AS late_rate
+FROM total_late tl
+JOIN customer c ON c.customer_id = tl.customer_id
+GROUP BY tl.customer_id, c.first_name, c.last_name
+ORDER BY tl.customer_id;
+
+
