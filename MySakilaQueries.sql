@@ -115,7 +115,14 @@ SELECT tl.customer_id, c.first_name, c.last_name,
 	COUNT(tl.rental_id) AS total_rentals, 
 	SUM(CASE WHEN late_days > 0 THEN 1 ELSE 0 END) AS late_instances,
     SUM(late_fee) AS total_late_fee,
-    ROUND (SUM(CASE WHEN late_days > 0 THEN 1 ELSE 0 END)/COUNT(tl.rental_id), 2) AS late_rate
+    ROUND (SUM(CASE WHEN late_days > 0 THEN 1 ELSE 0 END)/COUNT(tl.rental_id), 2) AS late_rate,
+        CASE 
+		  WHEN ROUND (SUM(CASE WHEN late_days > 0 THEN 1 ELSE 0 END)/COUNT(tl.rental_id), 2) >= 0.6
+		  THEN 'Risky'
+		  WHEN ROUND (SUM(CASE WHEN late_days > 0 THEN 1 ELSE 0 END)/COUNT(tl.rental_id), 2) <= 0.3
+		  THEN 'Reliable'
+		  ELSE 'Neutral'
+		END AS risk_tier
 FROM total_late tl
 JOIN customer c ON c.customer_id = tl.customer_id
 GROUP BY tl.customer_id, c.first_name, c.last_name
