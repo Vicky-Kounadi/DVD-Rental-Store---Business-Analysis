@@ -208,7 +208,7 @@ risk_layer AS (
 	GROUP BY tl.customer_id
 )
 SELECT 
-    c.customer_id, c.first_name, c.last_name,
+    c.customer_id, CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
     vl.rental_count, vl.total_revenue, vl.value_tier,
     rl.total_rentals, rl.late_instances, rl.total_late_fee, rl.late_rate, rl.risk_tier
 FROM value_layer vl
