@@ -32,10 +32,19 @@ ORDER BY rental_count DESC;
 
 -- CUSTOMERS
 -- Top 10 customer, based on num of rentals
-SELECT c.customer_id, c.first_name, c.last_name, COUNT(r.rental_id) AS rental_count
+-- SELECT c.customer_id, c.first_name, c.last_name, COUNT(r.rental_id) AS rental_count
+SELECT c.customer_id, CONCAT(c.first_name, ' ', c.last_name) AS customer_name, COUNT(r.rental_id) AS rental_count
 FROM rental r
 JOIN customer c ON r.customer_id = c.customer_id
 GROUP BY c.customer_id, c.first_name, c.last_name
 ORDER BY rental_count DESC
+LIMIT 10;
+
+-- Top 10 customer, based on revenue they bring
+SELECT c.customer_id, c.first_name, c.last_name, SUM(p.amount) as total_revenue
+FROM payment p
+JOIN customer c ON c.customer_id = p.customer_id
+GROUP BY c.customer_id, c.first_name, c.last_name
+ORDER BY total_revenue DESC
 LIMIT 10;
 
