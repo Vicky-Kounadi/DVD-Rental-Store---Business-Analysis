@@ -216,4 +216,23 @@ JOIN risk_layer rl ON vl.customer_id = rl.customer_id
 JOIN customer c ON c.customer_id = vl.customer_id
 ORDER BY vl.total_revenue DESC;
 
+-- RENTAL TRENDS OVER TIME
+-- Rents + revenue per month
+SELECT MONTHNAME(r.rental_date) AS month_name,
+	COUNT(r.rental_id) AS rentals_per_month, 
+	ROUND(SUM(p.amount),2) AS revenue_per_month
+FROM rental r
+JOIN payment p ON r.rental_id=p.rental_id
+GROUP BY month_name
+ORDER BY rentals_per_month DESC;
+
+-- Rents + revenue per day
+SELECT DAYNAME(r.rental_date) AS day_name,
+	COUNT(r.rental_id) AS rentals_per_day, 
+	ROUND(SUM(p.amount),2) AS revenue_per_day
+FROM rental r
+JOIN payment p ON r.rental_id=p.rental_id
+GROUP BY day_name
+ORDER BY rentals_per_day DESC;
+
 
