@@ -7,3 +7,13 @@ SELECT * FROM payment LIMIT 10;
 SELECT * FROM rental LIMIT 10;
 SELECT * FROM staff LIMIT 10;
 SELECT * FROM store LIMIT 10;
+
+-- FILMS
+-- Top 10 most rented films
+SELECT f.film_id, f.title, COUNT(r.rental_id) AS rental_count
+FROM rental r
+JOIN inventory i ON r.inventory_id = i.inventory_id
+JOIN film f ON i.film_id = f.film_id
+GROUP BY f.film_id, f.title
+ORDER BY rental_count DESC
+LIMIT 10;
