@@ -465,3 +465,27 @@ FROM v_customer_analysis
 GROUP BY value_tier, risk_tier;
 
 SELECT * FROM v_customer_segment ORDER BY value_tier;
+
+CREATE VIEW v_category_segment AS
+WITH 
+rental_category AS(
+	SELECT c.category_id, c.name, r.rental_id
+	FROM rental r
+	JOIN inventory i ON r.inventory_id = i.inventory_id
+	JOIN film f ON i.film_id = f.film_id
+	JOIN film_category fc ON f.film_id = fc.film_id
+	JOIN category c ON fc.category_id = c.category_id
+),
+payment_per_rental AS(
+	SELECT r.rental_id, p.payment_id, p.amount
+	FROM rental r
+	JOIN payment p ON r.rental_id=p.rental_id
+)
+SELECT rc.category_id, rc.name, 
+	ROUND(SUM(ppr.amount), 2) AS revenue_per_category,
+    COUNT(rc.rental_id) AS rental_count,
+    ROUND(SUM(ppr.amount) / COUNT(rc.rental_id), 2) AS average_revenue_per_rental
+FROM rental_category rc
+JOIN payment_per_rental ppr ON rc.rental_id = ppr.rental_id
+GROUP BY rc.category_id
+ORDER BY revenue_per_category DESC;
