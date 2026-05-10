@@ -312,3 +312,10 @@ SELECT s.store_id, COUNT(r.rental_id) AS rent_store
 FROM rental r
 JOIN staff s ON r.staff_id = s.staff_id
 GROUP BY s.store_id;
+
+-- Revenue per store
+SELECT s.store_id, ROUND(SUM(p.amount), 2) AS rev_store
+FROM rental r
+JOIN staff s ON r.staff_id = s.staff_id
+JOIN payment p ON r.rental_id = p.rental_id
+GROUP BY s.store_id;
