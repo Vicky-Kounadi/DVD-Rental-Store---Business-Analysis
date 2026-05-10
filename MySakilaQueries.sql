@@ -8,6 +8,20 @@ SELECT * FROM rental LIMIT 10;
 SELECT * FROM staff LIMIT 10;
 SELECT * FROM store LIMIT 10;
 
+-- DATA VALIDATION
+-- Check if null values
+SELECT 
+	SUM(CASE WHEN customer_id IS NULL THEN 1 ELSE 0 END) AS null_customer_id,
+    SUM(CASE WHEN rental_date IS NULL THEN 1 ELSE 0 END) AS null_rental_date,
+    SUM(CASE WHEN inventory_id IS NULL THEN 1 ELSE 0 END) AS null_inventory_id
+FROM rental;
+
+-- Duplicate rent records
+SELECT rental_id, COUNT(*) AS duplicate_count
+FROM rental
+GROUP BY rental_id
+HAVING COUNT(*) > 1;
+
 -- FILMS
 -- Top 10 most rented films
 SELECT f.film_id, f.title, COUNT(r.rental_id) AS rental_count
