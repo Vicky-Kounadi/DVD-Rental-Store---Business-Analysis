@@ -506,12 +506,15 @@ SELECT * FROM v_film_performance;
 
 -- Yearly/Monthly trends
 CREATE VIEW v_rental_trends AS
-SELECT MONTHNAME(r.rental_date) AS month_name,
-	COUNT(r.rental_id) AS rentals_per_month, 
-	ROUND(SUM(p.amount),2) AS revenue_per_month
+SELECT
+	YEAR(r.rental_date) AS rental_year,
+	MONTH(r.rental_date) AS rental_month_num,
+	MONTHNAME(r.rental_date) AS rental_month,
+	COUNT(r.rental_id) AS rentals_count,
+	ROUND(SUM(p.amount), 2) AS total_revenue
 FROM rental r
-JOIN payment p ON r.rental_id=p.rental_id
-GROUP BY month_name
-ORDER BY rentals_per_month DESC;
+JOIN payment p ON r.rental_id = p.rental_id
+GROUP BY YEAR(r.rental_date), MONTH(r.rental_date), MONTHNAME(r.rental_date)
+ORDER BY rental_year, rental_month_num;
 
 SELECT * FROM v_rental_trends;
