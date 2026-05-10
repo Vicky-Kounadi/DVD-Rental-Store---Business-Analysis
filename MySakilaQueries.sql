@@ -503,3 +503,15 @@ GROUP BY f.film_id, c.name
 ORDER BY f.film_id;
 
 SELECT * FROM v_film_performance;
+
+-- Yearly/Monthly trends
+CREATE VIEW v_rental_trends AS
+SELECT MONTHNAME(r.rental_date) AS month_name,
+	COUNT(r.rental_id) AS rentals_per_month, 
+	ROUND(SUM(p.amount),2) AS revenue_per_month
+FROM rental r
+JOIN payment p ON r.rental_id=p.rental_id
+GROUP BY month_name
+ORDER BY rentals_per_month DESC;
+
+SELECT * FROM v_rental_trends;
