@@ -454,3 +454,14 @@ JOIN risk_layer rl ON c.customer_id = rl.customer_id
 ORDER BY vl.total_revenue DESC;
 
 SELECT * FROM v_customer_analysis;
+
+CREATE VIEW v_customer_segment AS
+SELECT
+  value_tier,
+  risk_tier,
+  COUNT(*) AS customer_count,
+  SUM(total_revenue) AS segment_revenue
+FROM v_customer_analysis
+GROUP BY value_tier, risk_tier;
+
+SELECT * FROM v_customer_segment ORDER BY value_tier;
