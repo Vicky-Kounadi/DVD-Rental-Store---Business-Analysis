@@ -319,3 +319,40 @@ FROM rental r
 JOIN staff s ON r.staff_id = s.staff_id
 JOIN payment p ON r.rental_id = p.rental_id
 GROUP BY s.store_id;
+
+-- Total store performance
+WITH 
+rent_per_store AS(
+	SELECT s.store_id, COUNT(r.rental_id) AS rent_store
+	FROM rental r
+	JOIN staff s ON r.staff_id = s.staff_id
+	GROUP BY s.store_id
+),
+rev_per_store AS(
+	SELECT s.store_id, ROUND(SUM(p.amount), 2) AS rev_store
+	FROM rental r
+	JOIN staff s ON r.staff_id = s.staff_id
+	JOIN payment p ON r.rental_id = p.rental_id
+	GROUP BY s.store_id
+),
+store_staff AS(
+	SELECT r.staff_id, s.first_name, s.last_name, CONCAT(s.first_name, ' ', s.last_name) AS staff_name, s.store_id,
+		ROUND(SUM(p.amount),2) AS total_revenue
+	FROM rental r
+	JOIN payment p ON r.rental_id = p.rental_id
+	JOIN staff s ON r.staff_id = s.staff_id
+    GROUP BY s.store_id, s.staff_id
+),
+total_company AS (
+	SELECT SUM(p.amount) AS total_company_revenue
+	FROM payment p
+)
+SELECT rentps.store_id, 
+	rentps.rent_store, revps.rev_store,
+     ROUND(revps.rev_store / rentps.rent_store, 2) AS avg_revenue_per_rental,
+     ss.staff_name, ss.total_revenue AS staff_revenue,
+     ROUND((ss.total_revenue / tc.total_company_revenue) * 100, 2) AS staff_contribution_to_company_pct
+FROM rent_per_store rentps
+JOIN rev_per_store revps ON rentps.store_id = revps.store_id
+JOIN store_staff ss ON rentps.store_id = ss.store_id
+CROSS JOIN total_company tc;
