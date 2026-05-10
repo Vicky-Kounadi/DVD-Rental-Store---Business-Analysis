@@ -484,3 +484,22 @@ JOIN payment p ON r.rental_id = p.rental_id
 GROUP BY c.category_id;
 
 SELECT * FROM v_category_performance;
+
+-- Film perf
+CREATE VIEW v_film_performance AS
+SELECT 
+	f.film_id, f.title, c.name AS category_name,
+	COUNT(r.rental_id) AS rental_count,
+	ROUND(SUM(p.amount), 2) AS total_revenue,
+	ROUND(SUM(p.amount) / COUNT(r.rental_id), 2) AS avg_revenue_per_rental,
+	f.rating, f.rental_duration
+FROM rental r
+JOIN inventory i ON r.inventory_id = i.inventory_id
+JOIN film f ON i.film_id = f.film_id
+JOIN film_category fc ON f.film_id = fc.film_id
+JOIN category c ON fc.category_id = c.category_id
+JOIN payment p ON r.rental_id = p.rental_id
+GROUP BY f.film_id, c.name
+ORDER BY f.film_id;
+
+SELECT * FROM v_film_performance;
