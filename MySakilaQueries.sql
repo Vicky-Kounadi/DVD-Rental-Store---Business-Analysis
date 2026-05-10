@@ -466,26 +466,21 @@ GROUP BY value_tier, risk_tier;
 
 SELECT * FROM v_customer_segment ORDER BY value_tier;
 
-CREATE VIEW v_category_segment AS
-WITH 
-rental_category AS(
-	SELECT c.category_id, c.name, r.rental_id
-	FROM rental r
-	JOIN inventory i ON r.inventory_id = i.inventory_id
-	JOIN film f ON i.film_id = f.film_id
-	JOIN film_category fc ON f.film_id = fc.film_id
-	JOIN category c ON fc.category_id = c.category_id
-),
-payment_per_rental AS(
-	SELECT r.rental_id, p.payment_id, p.amount
-	FROM rental r
-	JOIN payment p ON r.rental_id=p.rental_id
-)
-SELECT rc.category_id, rc.name, 
-	ROUND(SUM(ppr.amount), 2) AS revenue_per_category,
-    COUNT(rc.rental_id) AS rental_count,
-    ROUND(SUM(ppr.amount) / COUNT(rc.rental_id), 2) AS average_revenue_per_rental
-FROM rental_category rc
-JOIN payment_per_rental ppr ON rc.rental_id = ppr.rental_id
-GROUP BY rc.category_id
-ORDER BY revenue_per_category DESC;
+-- Category perf
+CREATE VIEW v_category_performance AS
+SELECT 
+	c.category_id, c.name AS category_name,
+	ROUND(SUM(p.amount), 2) AS total_revenue,
+	COUNT(r.rental_id) AS rental_count,
+	ROUND(SUM(p.amount) / COUNT(r.rental_id), 2) AS avg_revenue_per_rental,
+    ROUND( SUM(p.amount) * 100 /
+		(SELECT SUM(amount) FROM payment), 2) AS perc_of_total_revenue
+FROM rental r
+JOIN inventory i ON r.inventory_id = i.inventory_id
+JOIN film f ON i.film_id = f.film_id
+JOIN film_category fc ON f.film_id = fc.film_id
+JOIN category c ON fc.category_id = c.category_id
+JOIN payment p ON r.rental_id = p.rental_id
+GROUP BY c.category_id;
+
+SELECT * FROM v_category_performance;
