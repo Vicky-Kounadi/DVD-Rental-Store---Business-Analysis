@@ -33,6 +33,11 @@ FROM rental r
 LEFT JOIN payment p ON r.rental_id = p.rental_id
 WHERE p.payment_id IS NULL;
 
+-- Invalid rent dates
+SELECT rental_id, rental_date, return_date
+FROM rental
+WHERE return_date < rental_date;
+
 -- FILMS
 -- Top 10 most rented films
 SELECT f.film_id, f.title, COUNT(r.rental_id) AS rental_count
