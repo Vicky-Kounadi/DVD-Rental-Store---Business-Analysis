@@ -359,14 +359,42 @@ CROSS JOIN total_company tc;
 
 
 -- VIEWS FOR VISUALIZATIONS
+-- Lateness from upper query
+CREATE VIEW v_lateness AS
+WITH lateness AS (
+	SELECT r.rental_id, r.customer_id, r.rental_date, r.return_date, 
+		f.film_id, f.rental_duration,
+		DATE_ADD(r.rental_date, INTERVAL f.rental_duration DAY) AS exp_return_date
+	FROM rental r
+	JOIN inventory i ON r.inventory_id = i.inventory_id
+	JOIN film f ON i.film_id = f.film_id
+)
+SELECT *,
+	CASE 
+		WHEN l.return_date IS NULL THEN 'Not Returned'
+		WHEN l.return_date > l.exp_return_date THEN 'Late'
+		ELSE 'On Time'
+	END AS return_status,
+	CASE 
+		WHEN l.return_date > l.exp_return_date THEN DATEDIFF(l.return_date, l.exp_return_date)
+		ELSE 0
+	END AS late_days,
+	CASE 
+		WHEN l.return_date > l.exp_return_date THEN DATEDIFF(l.return_date, l.exp_return_date) * 0.50
+		ELSE 0
+	END AS late_fee
+FROM lateness l;
+
+SELECT * FROM v_lateness;
 
 -- Brief stats
 CREATE VIEW v_data_summary AS
 SELECT
   (SELECT SUM(amount) FROM payment) AS total_revenue,
   (SELECT COUNT(*) FROM rental) AS total_rentals,
-  (SELECT COUNT(DISTINCT customer_id) FROM customer) AS total_customers
+  (SELECT COUNT(DISTINCT customer_id) FROM customer) AS total_customers,
+  (SELECT ROUND( SUM(CASE WHEN return_status = 'Late' THEN 1 ELSE 0 END) / COUNT(*), 2) FROM v_lateness) AS late_rate
 ;
 
-select * from v_data_summary;
+SELECT * FROM v_data_summary;
 
