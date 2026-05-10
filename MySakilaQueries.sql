@@ -398,3 +398,59 @@ SELECT
 
 SELECT * FROM v_data_summary;
 
+
+-- Customer analysis
+CREATE VIEW v_customer_analysis AS
+WITH 
+top_rental AS(
+	SELECT c.customer_id, COUNT(r.rental_id) AS rental_count
+	FROM rental r
+	JOIN customer c ON r.customer_id = c.customer_id
+	GROUP BY c.customer_id
+),
+top_revenue AS(
+	SELECT c.customer_id,SUM(p.amount) as total_revenue
+	FROM payment p
+	JOIN customer c ON c.customer_id = p.customer_id
+	GROUP BY c.customer_id
+),
+value_layer AS (
+    SELECT 
+        trent.customer_id,
+        trent.rental_count,
+        ROUND(trev.total_revenue, 2) AS total_revenue,
+        CASE 
+            WHEN trent.rental_count >= 30 OR trev.total_revenue >= 150 THEN 'High Value'
+            WHEN (trent.rental_count >= 20 AND trent.rental_count < 30) 
+              OR (trev.total_revenue >= 80 AND trev.total_revenue < 150) THEN 'Medium Value'
+            ELSE 'Low Value'
+        END AS value_tier
+    FROM top_rental trent
+	JOIN top_revenue trev ON trev.customer_id = trent.customer_id
+),
+risk_layer AS (
+   SELECT customer_id,
+		COUNT(rental_id) AS total_rentals, 
+		SUM(CASE WHEN late_days > 0 THEN 1 ELSE 0 END) AS late_instances,
+		SUM(late_fee) AS total_late_fee,
+		ROUND (SUM(CASE WHEN late_days > 0 THEN 1 ELSE 0 END)/COUNT(rental_id), 2) AS late_rate,
+		CASE 
+			  WHEN ROUND (SUM(CASE WHEN late_days > 0 THEN 1 ELSE 0 END)/COUNT(rental_id), 2) >= 0.6
+			  THEN 'Risky'
+			  WHEN ROUND (SUM(CASE WHEN late_days > 0 THEN 1 ELSE 0 END)/COUNT(rental_id), 2) <= 0.3
+			  THEN 'Reliable'
+			  ELSE 'Neutral'
+			END AS risk_tier
+	FROM v_lateness
+	GROUP BY customer_id
+)
+SELECT 
+    c.customer_id, CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
+    vl.rental_count, vl.total_revenue, vl.value_tier,
+    rl.total_rentals, rl.late_instances, rl.total_late_fee, rl.late_rate, rl.risk_tier
+FROM customer c
+JOIN value_layer vl ON c.customer_id = vl.customer_id
+JOIN risk_layer rl ON c.customer_id = rl.customer_id
+ORDER BY vl.total_revenue DESC;
+
+SELECT * FROM v_customer_analysis;
