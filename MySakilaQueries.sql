@@ -77,7 +77,7 @@ ORDER BY rental_count DESC
 LIMIT 10;
 
 -- Top 10 customer, based on revenue they bring
-SELECT c.customer_id, c.first_name, c.last_name, SUM(p.amount) as total_revenue
+SELECT c.customer_id, CONCAT(c.first_name, ' ', c.last_name) AS customer_name, SUM(p.amount) as total_revenue
 FROM payment p
 JOIN customer c ON c.customer_id = p.customer_id
 GROUP BY c.customer_id, c.first_name, c.last_name
@@ -147,7 +147,7 @@ total_late AS(
 			END AS late_fee
 	FROM lateness l
     )
-SELECT tl.customer_id, c.first_name, c.last_name,
+SELECT tl.customer_id, CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
 	COUNT(tl.rental_id) AS total_rentals, 
 	SUM(CASE WHEN late_days > 0 THEN 1 ELSE 0 END) AS late_instances,
     SUM(late_fee) AS total_late_fee,
@@ -297,7 +297,7 @@ GROUP BY rc.category_id
 ORDER BY revenue_per_category DESC;
 
 -- STAFF PROFITABILITY
-SELECT r.staff_id, s.first_name, s.last_name, s.store_id,
+SELECT r.staff_id, CONCAT(s.first_name, ' ', s.last_name) AS staff_name, s.store_id,
 	COUNT(r.rental_id) AS total_transactions, 
     ROUND(SUM(p.amount),2) AS total_revenue,
     ROUND(SUM(p.amount) / COUNT(r.rental_id), 2) AS efficiency
@@ -306,3 +306,9 @@ JOIN payment p ON r.rental_id = p.rental_id
 JOIN staff s ON r.staff_id = s.staff_id
 GROUP BY r.staff_id, s.first_name, s.last_name, s.store_id;
 
+-- STORE PROFITABILITY
+-- Rentals per store
+SELECT s.store_id, COUNT(r.rental_id) AS rent_store
+FROM rental r
+JOIN staff s ON r.staff_id = s.staff_id
+GROUP BY s.store_id;
