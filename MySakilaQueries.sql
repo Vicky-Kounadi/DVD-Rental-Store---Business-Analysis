@@ -519,6 +519,20 @@ ORDER BY rental_year, rental_month_num;
 
 SELECT * FROM v_rental_trends;
 
+-- Daily trends
+CREATE VIEW v_daily_rental_trends AS
+SELECT
+	DAYOFWEEK(r.rental_date) AS day_num,
+	DAYNAME(r.rental_date) AS day_name,
+	COUNT(r.rental_id) AS rentals_count,
+	ROUND(SUM(p.amount), 2) AS total_revenue
+FROM rental r
+JOIN payment p ON r.rental_id = p.rental_id
+GROUP BY DAYOFWEEK(r.rental_date), DAYNAME(r.rental_date)
+ORDER BY day_num;
+
+SELECT * FROM v_daily_rental_trends;
+
 -- Store perf
 -- tried to use less ctes from upper query
 CREATE VIEW v_store_performance AS
