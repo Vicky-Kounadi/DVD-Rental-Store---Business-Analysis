@@ -22,6 +22,17 @@ FROM rental
 GROUP BY rental_id
 HAVING COUNT(*) > 1;
 
+-- Valid payments
+SELECT *
+FROM payment
+WHERE amount < 0;
+
+-- Unpaid rentals
+SELECT r.rental_id
+FROM rental r
+LEFT JOIN payment p ON r.rental_id = p.rental_id
+WHERE p.payment_id IS NULL;
+
 -- FILMS
 -- Top 10 most rented films
 SELECT f.film_id, f.title, COUNT(r.rental_id) AS rental_count
