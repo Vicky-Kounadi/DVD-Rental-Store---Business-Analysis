@@ -356,3 +356,17 @@ FROM rent_per_store rentps
 JOIN rev_per_store revps ON rentps.store_id = revps.store_id
 JOIN store_staff ss ON rentps.store_id = ss.store_id
 CROSS JOIN total_company tc;
+
+
+-- VIEWS FOR VISUALIZATIONS
+
+-- Brief stats
+CREATE VIEW v_data_summary AS
+SELECT
+  (SELECT SUM(amount) FROM payment) AS total_revenue,
+  (SELECT COUNT(*) FROM rental) AS total_rentals,
+  (SELECT COUNT(DISTINCT customer_id) FROM customer) AS total_customers
+;
+
+select * from v_data_summary;
+
