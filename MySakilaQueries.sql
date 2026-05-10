@@ -540,3 +540,25 @@ CROSS JOIN total_company tc
 GROUP BY s.store_id, tc.total_company_revenue;
 
 SELECT * FROM v_store_performance;
+
+-- STaff performance
+CREATE VIEW v_staff_performance AS
+WITH 
+total_company AS (
+	SELECT SUM(amount) AS total_company_revenue FROM payment
+)
+SELECT
+	s.staff_id,
+	CONCAT(s.first_name, ' ', s.last_name) AS staff_name,
+	s.store_id,
+	COUNT(r.rental_id) AS total_transactions,
+	ROUND(SUM(p.amount), 2) AS total_revenue,
+	ROUND( SUM(p.amount) / COUNT(r.rental_id), 2) AS efficiency,
+	ROUND( SUM(p.amount) * 100 / tc.total_company_revenue, 2) AS perc_of_total_revenue
+FROM rental r
+JOIN payment p ON r.rental_id = p.rental_id
+JOIN staff s ON r.staff_id = s.staff_id
+CROSS JOIN total_company tc
+GROUP BY s.staff_id, tc.total_company_revenue;
+
+SELECT * FROM v_staff_performance;
