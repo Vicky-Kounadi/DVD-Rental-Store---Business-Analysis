@@ -518,3 +518,25 @@ GROUP BY YEAR(r.rental_date), MONTH(r.rental_date), MONTHNAME(r.rental_date)
 ORDER BY rental_year, rental_month_num;
 
 SELECT * FROM v_rental_trends;
+
+-- Store perf
+-- tried to use less ctes from upper query
+CREATE VIEW v_store_performance AS
+WITH 
+total_company AS (
+	SELECT  SUM(amount) AS total_company_revenue
+	FROM payment
+)
+SELECT
+	s.store_id,
+	COUNT(r.rental_id) AS total_rentals,
+	ROUND(SUM(p.amount), 2) AS total_revenue,
+	ROUND( SUM(p.amount) / COUNT(r.rental_id), 2) AS avg_revenue_per_rental,
+	ROUND( SUM(p.amount) * 100 / tc.total_company_revenue, 2) AS perc_of_total_revenue
+FROM rental r
+JOIN payment p ON r.rental_id = p.rental_id
+JOIN staff s ON r.staff_id = s.staff_id
+CROSS JOIN total_company tc
+GROUP BY s.store_id, tc.total_company_revenue;
+
+SELECT * FROM v_store_performance;
