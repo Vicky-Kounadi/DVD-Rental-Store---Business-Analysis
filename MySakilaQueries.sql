@@ -38,6 +38,12 @@ SELECT rental_id, rental_date, return_date
 FROM rental
 WHERE return_date < rental_date;
 
+-- Invalid inventory slot, film doesnt exist
+SELECT i.inventory_id
+FROM inventory i
+LEFT JOIN film f ON i.film_id = f.film_id
+WHERE f.film_id IS NULL;
+
 -- FILMS
 -- Top 10 most rented films
 SELECT f.film_id, f.title, COUNT(r.rental_id) AS rental_count
