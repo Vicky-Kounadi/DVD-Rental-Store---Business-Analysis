@@ -296,4 +296,13 @@ JOIN payment_per_rental ppr ON rc.rental_id = ppr.rental_id
 GROUP BY rc.category_id
 ORDER BY revenue_per_category DESC;
 
+-- STAFF PROFITABILITY
+SELECT r.staff_id, s.first_name, s.last_name, s.store_id,
+	COUNT(r.rental_id) AS total_transactions, 
+    ROUND(SUM(p.amount),2) AS total_revenue,
+    ROUND(SUM(p.amount) / COUNT(r.rental_id), 2) AS efficiency
+FROM rental r
+JOIN payment p ON r.rental_id = p.rental_id
+JOIN staff s ON r.staff_id = s.staff_id
+GROUP BY r.staff_id, s.first_name, s.last_name, s.store_id;
 
