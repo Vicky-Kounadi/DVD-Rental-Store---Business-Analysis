@@ -126,4 +126,12 @@ The analysis was performed using SQL on the Sakila database:
 
 ---
 
+# Next Steps
 
+- Implement segmented late return policy and measure retention impact  
+- Test pricing strategies by category (A/B testing)  
+- Track KPIs such as:
+  - Late return rate  
+  - Revenue per rental  
+  - Customer tier movement  
+- Build Power BI dashboard for ongoing KPI monitoring and operational decision support.
