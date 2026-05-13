@@ -10,7 +10,7 @@ Additionally, although demand is evenly distributed across films, profitability 
 
 ---
 
-# Business Problem
+## Business Problem
 
 The goal of this analysis was to understand:
 
@@ -28,7 +28,7 @@ The goal of this analysis was to understand:
 
 ---
 
-# Methodology
+## Methodology
 
 The analysis was performed using SQL on the Sakila database:
 
@@ -41,7 +41,7 @@ The analysis was performed using SQL on the Sakila database:
 
 ---
 
-# Skills Demonstrated
+## Skills
 
 - SQL: CTEs, JOINs, aggregations, CASE logic  
 - Business analysis: segmentation, KPI evaluation, profitability analysis  
@@ -126,7 +126,7 @@ The analysis was performed using SQL on the Sakila database:
 
 ---
 
-# Next Steps
+## Next Steps
 
 - Implement segmented late return policy and measure retention impact  
 - Test pricing strategies by category (A/B testing)  
