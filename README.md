@@ -15,6 +15,8 @@ Additionally, although demand is evenly distributed across films, profitability 
 - Use seasonal demand patterns to better plan inventory and marketing strategies 
 
 ---
+![Alt text](/relative/path/to/img.png?raw=true "Overview")
+---
 
 ## Business Problem
 
