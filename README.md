@@ -8,6 +8,12 @@ The primary issue identified is systematic late returns, particularly among high
 
 Additionally, although demand is evenly distributed across films, profitability varies significantly by category, creating opportunities for pricing and inventory optimization.
 
+#Key Recommendations
+- Introduce segmented late return policies (strict for low-value customers, flexible for high-value customers) 
+- Optimize pricing and inventory based on category-level profitability (not just demand) 
+- Maintain balanced staffing and store operations, as performance is already high and efficient 
+- Use seasonal demand patterns to better plan inventory and marketing strategies 
+
 ---
 
 ## Business Problem
